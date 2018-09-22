@@ -1,69 +1,14 @@
-//include moment
+//include moment JS
 
 //Base64.js
-var Base64 = {
-    characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-
-    encode: function (string) {
-        var characters = Base64.characters;
-        var result = '';
-
-        var i = 0;
-        do {
-            var a = string.charCodeAt(i++);
-            var b = string.charCodeAt(i++);
-            var c = string.charCodeAt(i++);
-
-            a = a ? a : 0;
-            b = b ? b : 0;
-            c = c ? c : 0;
-
-            var b1 = (a >> 2) & 0x3F;
-            var b2 = ((a & 0x3) << 4) | ((b >> 4) & 0xF);
-            var b3 = ((b & 0xF) << 2) | ((c >> 6) & 0x3);
-            var b4 = c & 0x3F;
-
-            if (!b) {
-                b3 = b4 = 64;
-            } else if (!c) {
-                b4 = 64;
-            }
-
-            result += Base64.characters.charAt(b1) + Base64.characters.charAt(b2) + Base64.characters.charAt(b3) + Base64.characters.charAt(b4);
-
-        } while (i < string.length);
-
-        return result;
-    },
-
-    decode: function (string) {
-        var characters = Base64.characters;
-        var result = '';
-
-        var i = 0;
-        do {
-            var b1 = Base64.characters.indexOf(string.charAt(i++));
-            var b2 = Base64.characters.indexOf(string.charAt(i++));
-            var b3 = Base64.characters.indexOf(string.charAt(i++));
-            var b4 = Base64.characters.indexOf(string.charAt(i++));
-
-            var a = ((b1 & 0x3F) << 2) | ((b2 >> 4) & 0x3);
-            var b = ((b2 & 0xF) << 4) | ((b3 >> 2) & 0xF);
-            var c = ((b3 & 0x3) << 6) | (b4 & 0x3F);
-
-            result += String.fromCharCode(a) + (b ? String.fromCharCode(b) : '') + (c ? String.fromCharCode(c) : '');
-
-        } while (i < string.length);
-
-        return result;
-    }
-};
+//var Base64 = ???
 
 
-
+var zipperExe = "zip.exe"; //put to path environment
 
 var shellapp = new ActiveXObject("Shell.Application");
 var objShell = new ActiveXObject("WScript.shell");
+var comspec = objShell.ExpandEnvironmentStrings("%comspec%"); //32bit or 64bit
 var objFSO = new ActiveXObject("Scripting.FileSystemObject"),
     ForWriting = 2,
     ForReading = 1,
@@ -162,7 +107,8 @@ var customFileFolder = {
     }
 } //different types of file folder methods
 
-var toWriteLog = ''; //create a global variable
+
+var toWriteLog = ''; 
 
 if (WScript.Arguments.length == 13) {
     var userName = WScript.Arguments.Item(0);
@@ -208,6 +154,7 @@ if (WScript.Arguments.length == 13) {
         WScript.echo(toWriteLog);
     }
 } //checking if arguments collected is enough
+
 
 function splitTimeDuration(stringElements) { //collect al the arguments and checking the start and end time
     //topResultDIV (stringElements);
@@ -594,7 +541,7 @@ function runSQLBatch(stringElements, tempFolder, fileFolderName, dateName) {
 			while (!readResult.AtEndOfStream) {
 				readResult.SkipLine();
 				lineCount += 1;
-				if ((lineCount % 9999) == 0) { WScript.echo("Line 2198: Still inside texStream inside " + '"' + colFiles.item() + '" Line: ' + lineCount ) }
+				if ((lineCount % 9999) == 0) { WScript.echo("Line 2209: Still inside texStream inside " + '"' + colFiles.item() + '" Line: ' + lineCount ) }
 			}
 			readResult.close();			
 			
@@ -622,15 +569,6 @@ function runSQLBatch(stringElements, tempFolder, fileFolderName, dateName) {
 }
 
 function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dateName, fileFolderName, tempFolder, folderStore) {
-    //var objStartFolder = objFSO.GetFolder(stringElements[9]); //since run by Task Scheduler, need to write full directory name
-    //customFileFolder.checkMakeFolder(objStartFolder);
-    //var tempFolder = objStartFolder + '\\' + grabDateTime + '_tempFolder';
-    //customFileFolder.checkMakeFolder(tempFolder);
-    //var folderStore = objStartFolder + '\\folderStore';
-    //customFileFolder.checkMakeFolder(folderStore);
-    //var fileFolderName = tempFolder + '\\' + dateReformatted(moment(startDateTime).format('DD/MM/YYYY HH:mm:ss')) + '_to_'  + dateReformatted(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss')) ;
-    //var dateName = dateReformatted(moment(startDateTime).format('DD/MM/YYYY HH:mm:ss')) + '_to_'  + dateReformatted(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss')) ; //convert object to string
-
     var actualoutputFile = folderStore + '\\' + dateName + '.CSV';
     var actualInputFile = fileFolderName + ".txt";
     //var resourceUpdates = stringElements[7] + '000';
@@ -665,9 +603,7 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
         createLogFile(objStartFolder, toWriteLog);
         if (showEcho == 'showEcho') {
             WScript.echo(toWriteLog);
-        }
-
-		
+        }	
 
 			var firstLine, count = 0;
 			var readSQLResult = objFSO.OpentextFile(actualInputFile, ForReading, dontWantCreateIt, systemDefaultMode);
@@ -675,7 +611,11 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
 			while (!fileStreamer) {
 				var readFileLine = readSQLResult.ReadLine(); //read each line
 				if ((readFileLine.length > 9999) && (readFileLine.indexOf(',') != -1)) { //jump to first entry
-					WScript.echo(js_yyyymmdd_hhmmss() + ' = Found the relevant first data entry.');
+                        toWriteLog = js_yyyymmdd_hhmmss() + ' = Found the relevant first data entry.';
+                        createLogFile(objStartFolder, toWriteLog);
+                        if (showEcho == 'showEcho') {
+                            WScript.echo(toWriteLog);
+                        }                    
 					fileStreamer = true;
 					count += 1;
 					break;
@@ -767,8 +707,6 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
             readSQLResult.close();
             writeSQLResult.close();
 
-
-
             if ((sqlCount == lineCount) && (copyCount != 0)) {
                 //WScript.echo (sqlCount + ' --- line 499 ' + copyCount);                
                 toWriteLog = js_yyyymmdd_hhmmss() + ' = Deleted raw data file from database ' + actualInputFile + '\r\n';
@@ -780,7 +718,7 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
                 }
                 //checkFileSize(folderStore, objStartFolder, dateName, 'CSV');
 
-				/*
+				
                 toWriteLog = '===================================\r\n';
                 toWriteLog += js_yyyymmdd_hhmmss() + ' = Zipping up and to delete file ' + dateName + '.CSV' + '\r\n';
                 toWriteLog += js_yyyymmdd_hhmmss() + ' = If works, file will zip up as ' + dateName + '.zip' + '\r\n';
@@ -791,7 +729,8 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
                 }
 
                 var zipSuccessful = false;
-                //var zipSuccessful = f_CreateZip(folderStore, dateName); Removing zipping 2018_06_02
+                //zipSuccessful = f_CreateZip(folderStore, dateName); //Removing zipping 2018_06_02
+                zipSuccessful = oracleZipper (folderStore, dateName, zipperExe);
                 //WScript.sleep(10000);
 
                 toWriteLog = '===================================\r\n';
@@ -806,7 +745,7 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
                 if (showEcho == 'showEcho') {
                     WScript.echo(toWriteLog);
                 }
-				*/
+				
             }
         } else {
             
@@ -832,75 +771,42 @@ function checkCountTallyWriteCSV(stringElements, startDateTime, endDateTime, dat
 
 }
 
-// create a zip file of the log directory..
-function f_CreateZip(folderStore, dateName) {
 
-    var vbsFile = objFSO.OpentextFile(folderStore + '\\zipper.js', ForWriting, CreateIt, systemDefaultMode);
-
-    vbsFile.writeline('var shellapp = new ActiveXObject("Shell.Application");');
-    vbsFile.writeline('var folderStore = WScript.Arguments.Item(0);');
-    vbsFile.writeline('var dateName = WScript.Arguments.Item(1);');
-    vbsFile.writeline('var objFSO = new ActiveXObject("Scripting.FileSystemObject"),');
-    vbsFile.writeline("  ForWriting = 2,");
-    vbsFile.writeline("  ForReading = 1,");
-    vbsFile.writeline("  ForAppending = 8,");
-    vbsFile.writeline("  CreateIt = true,");
-    vbsFile.writeline("  dontWantCreateIt = false,");
-    vbsFile.writeline("  AsciiMode = 0,");
-    vbsFile.writeline("  UnicodeMode = -1,");
-    vbsFile.writeline("  systemDefaultMode = -2;");
-
-    //var zipFilename = folderStore + '\\' + dateName + '.zip';
-    vbsFile.writeline("var zipFilename = folderStore + '\\\\' + dateName + '.zip';");
-
-    vbsFile.writeline("WScript.echo(folderStore + '\\\\' + dateName + '.zip');");
-
-    // create an empty zipfile :-)
-    //var zipFile = objFSO.CreateTextFile(zipFilename, 1, 0);
-    //zipFile.write('PK' + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-    //zipFile.close();	
-    vbsFile.writeline("var zipFile = objFSO.CreateTextFile(zipFilename, 1, 0);");
-    vbsFile.writeline("zipFile.write('PK' + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));");
-    vbsFile.writeline("zipFile.close();");
-
-    //var source = folderStore + '\\' + dateName + '.CSV';	
-    vbsFile.writeline("var source = folderStore + '\\\\' + dateName + '.CSV';");
-
-    /*
-    // Test if is null folder
-    if (source == null) {
-    // throw new TypeError();
-    }
-    */
-
-    // copy all the source files into the zipfile
-    //shellapp.NameSpace(zipFilename).CopyHere(source);
-    //WScript.sleep(2000);
-    vbsFile.writeline("shellapp.NameSpace(zipFilename).CopyHere(source);");
-    vbsFile.writeline("WScript.sleep(5000);");
-    vbsFile.close();
-
-    var strCommand = 'cmd /c cscript //nologo //B "' + folderStore + '\\zipper.js" "' + folderStore + '" "' + dateName + '"';
-    //cscript .\src\collectSQLData.vbs a "C:\ViewToggle\02-sqlPlusSelect\01 toCSCRIPT" > resource
-    objShell.Run(strCommand, 2, true);
-    WScript.sleep(2000);
-
-    var zipSuccessful = false;
-    var getFileObject = objFSO.GetFile(folderStore + '\\' + dateName + '.zip');
-    var fileSize = getFileObject.size / 1024;
-    if (parseInt(fileSize) < 260) {
-        getFileObject.Attributes[0];
-        getFileObject.Delete();
-        var fileContent = js_yyyymmdd_hhmmss() + ' = Deleting file because size is under 260KB : ' + folderStore + '\\' + dateName + '.zip\r\n';
-        fileContent += js_yyyymmdd_hhmmss() + ' = Keeping CSV file for manual zip : ' + folderStore + '\\' + dateName + '.CSV\r\n';
+function oracleZipper (folderStore, dateName, zipperExe) {
+    var zipFilename = folderStore + '\\' + dateName + '.zip';
+    var sourceFile = folderStore + '\\' + dateName + '.CSV';   
+ 
+    if (objFSO.FileExists(zipperExe)) {
+        //command = zip.exe -v -r 2018-09-03_060000_to_2018-09-03_120000.zip 2018-09-03_060000_to_2018-09-03_120000.CSV        
+        
+        var fileContent = js_yyyymmdd_hhmmss() + ' = oracleZipper Making zip file : ' + zipFilename + '\r\n';
+        fileContent += js_yyyymmdd_hhmmss() + ' = oracleZipper zipping up : ' + sourceFile + '\r\n';
         createLogFile(objStartFolder, fileContent);
-        zipSuccessful = false;
-    } else {
-        customFileFolder.deleteFile(folderStore + '\\' + dateName + '.CSV');
-        zipSuccessful = true;
-    }
-    customFileFolder.deleteFile(folderStore + '\\zipper.js');
-    return zipSuccessful;
+
+        var strCommand = comspec + ' /c "' + zipperExe + ' -r ' + zipFilename + ' ' + sourceFile + '"' ;
+        try {
+            objShell.Run(strCommand, 0, true);
+        } catch (e) {
+            createLogFile(objStartFolder, e.description);
+            customFileFolder.deleteFile(zipFilename);
+            zipSuccessful = false;
+        }
+        
+        var getFileObject = objFSO.GetFile(zipFilename);
+        var fileSize = getFileObject.size / 1024;
+        if (parseInt(fileSize) < 260) {
+            getFileObject.Attributes[0];
+            getFileObject.Delete();
+            var fileContent = js_yyyymmdd_hhmmss() + ' = oracleZipper : Deleting file because size is under 260KB : ' + zipFilename + '\r\n';
+            fileContent += js_yyyymmdd_hhmmss() + ' = oracleZipper : Keeping CSV file for manual zip : ' + sourceFile + '\r\n';
+            createLogFile(objStartFolder, fileContent);
+            zipSuccessful = false;
+        } else {
+            customFileFolder.deleteFile(sourceFile);
+            zipSuccessful = true;
+        }
+        return zipSuccessful;          
+    }  
 }
 
 function sqlTestConnect(stringElements, grabDateTime) { //need to change to tnFsping + select * from dual
@@ -951,7 +857,7 @@ function sqlTestConnect(stringElements, grabDateTime) { //need to change to tnFs
     batFile.writeline('tnsping ' + dataBase + ' >> "' + tempFolder + '\\' + 'sqlCountOnly.txt"');
     batFile.close();
 
-    var strCommand = 'cmd /c "' + tempFolder + '\\' + 'sqlCountOnly.bat' + '"';
+    var strCommand = comspec + ' /c "' + tempFolder + '\\' + 'sqlCountOnly.bat' + '"';
     objShell.Run(strCommand, 0, true);
 
     customFileFolder.deleteFile(tempFolder + '\\' + 'sqlCountOnly.sql');
@@ -1032,47 +938,73 @@ function createLogFile(objStartFolder, toWriteLog) {
     }
 }
 
-function folderFileExist(dateName, folderStore, startDateTime, endDateTime) {
-    var foundFile = false;
-    if (objFSO.FolderExists(folderStore)) {
-        var listArrayName = [];
-        var objFolder = objFSO.GetFolder(folderStore);
-        var colFiles = new Enumerator(objFolder.files);
-        for (; !colFiles.atEnd(); colFiles.moveNext()) {
-            if (colFiles.item().name.split('.').pop().indexOf('CSV') == 0) {
-                if (dateName + '.CSV' == colFiles.item().name) {
-                    var arrayFound = readFirstLast(colFiles.item(), startDateTime, endDateTime);
-                    if (arrayFound.length > 1) {
-                        foundFile = true;
-                        return foundFile;
-                        //listArrayName.push (colFiles.item().name);
-                    } else {
-                        foundFile = false;
-                        customFileFolder.deleteFile(colFiles.item());
-                        return foundFile;
-                    }
-                }
-            }
-        }
-    }
-    return foundFile;
-}
 
 function zipFileExist(folderStore, startDateTimeActual, endDateTimeActual) {
-    //var fileFolderName = folderStore + '\\' + dateReformatted(moment(startDateTime).format('DD/MM/YYYY HH:mm:ss')) + '_to_'  + dateReformatted(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss')) ;
-    //var dateName = dateReformatted(moment(startDateTime).format('DD/MM/YYYY HH:mm:ss')) + '_to_'  + dateReformatted(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss')) ;
-
     //for each file found, if continuous need to form one array element. if gap, create another element.
     //if found gap element. will push to new array for return value to be use as collecting time duration
     var fileDateArr = [];
     var gapDate = [];
+    var nameOnly = '';
 
     if (objFSO.FolderExists(folderStore)) {
-        var timeSlots = [];
+        var foundFilesCSV = [];
+        var foundFilesZIP = [];
         var objFolder = objFSO.GetFolder(folderStore);
         var colFiles = new Enumerator(objFolder.files);
         for (; !colFiles.atEnd(); colFiles.moveNext()) {
-            if ((colFiles.item().name.split('.').pop().indexOf('zip') == 0) || (colFiles.item().name.split('.').pop().indexOf('CSV') == 0)) {
+            if (colFiles.item().name.split('.').pop().indexOf('zip') == 0) {
+                var fileContent = {};
+                fileContent.path = colFiles.item().name; //full folder name
+                nameOnly = colFiles.item().name.split('\\');
+                fileContent.name = nameOnly[nameOnly.length - 1]; //only the file name
+                foundFilesZIP.push(fileContent);
+            }
+            if (colFiles.item().name.split('.').pop().indexOf('CSV') == 0) {
+                var fileContent = {};
+                fileContent.path = colFiles.item().name; //full folder name
+                nameOnly = colFiles.item().name.split('\\');
+                fileContent.name = nameOnly[nameOnly.length - 1]; //only the file name
+                foundFilesCSV.push(fileContent);
+            }            
+        }
+
+        var filesToDelete = [];
+        for(var a=0; a<foundFilesZIP.length; a++) {
+            for(var b=0; b<foundFilesCSV.length; b++){
+                if(foundFilesCSV[b].name == foundFilesZIP[a].name) {
+                    filesToDelete.push(foundFilesZIP[a]); //after successful zip, CSV files should be deleted, else means zip unsucessful, deletePrematureFiles incharge of checking if TXT already saved to CSV correctly
+                }
+            }
+        }
+
+        for (var c=0; c<filesToDelete.length; c++ ) {
+            customFileFolder.deleteFile(filesToDelete[c]); //after successful zip, CSV files should be deleted, else means zip unsucessful,
+        }
+        filesToDelete = [];
+        foundFilesCSV = [];
+        foundFilesZIP = [];        
+
+        filesToZip = [];
+        objFolder = objFSO.GetFolder(folderStore);
+        colFiles = new Enumerator(objFolder.files);
+        for (; !colFiles.atEnd(); colFiles.moveNext()) {
+            if (colFiles.item().name.split('.').pop().indexOf('CSV') == 0) { 
+                filesToZip.push(colFiles.item().name);
+            }
+        }
+
+        for (var d=0; d<filesToZip.length; d++){
+            nameOnly = filesToZip[d].split('\\');
+            var dateName = nameOnly[nameOnly.length - 1].replace('CSV','');            
+            oracleZipper (folderStore, dateName, zipperExe); //previous code dont have zip function. Added zip function + deletePrematureFiles incharge of checking if TXT already saved to CSV correctly
+        }
+        filesToZip = [];
+
+        objFolder = objFSO.GetFolder(folderStore);
+        colFiles = new Enumerator(objFolder.files);
+        for (; !colFiles.atEnd(); colFiles.moveNext()) {
+            //if ((colFiles.item().name.split('.').pop().indexOf('zip') == 0) || (colFiles.item().name.split('.').pop().indexOf('CSV') == 0)) { //once all zip up, can comment out this line
+            if (colFiles.item().name.split('.').pop().indexOf('zip') == 0) { //started using Zip. So dont check CSV as a relevant file entry                
                 num = colFiles.item().size / 1024; //KB
                 if (parseInt(num) < 3) {
                     colFiles.item().Delete(); //delete zip files which failed to zip up the csv files if size under 3KB
@@ -1249,40 +1181,6 @@ function checkFileSize(tempFolder, objStartFolder, dateName, extension) {
     }
 }
 
-function readFirstLast(csvFile, startDateTime, endDateTime) { //to make sure the CSV file completed collecting from Oracle
-    //19/02/2018 03:59:55 AM
-    var objFileName = objFSO.GetFileName(csvFile);
-    var strStartDateTime = moment(startDateTime).format('DD/MM/YYYY HH:mm:ss A'); //convert to string format
-    var strEndDateTime = moment(endDateTime).format('DD/MM/YYYY HH:mm:ss A'); //convert to string format
-
-    var foundString = []
-    if (objFileName.split('.').pop().indexOf('CSV') == 0) {
-        var getFileObject = objFSO.GetFile(csvFile);
-        var fileSize = getFileObject.size;
-        var fileStream = objFSO.OpentextFile(csvFile, ForReading, dontWantCreateIt, systemDefaultMode);
-        fileStream.SkipLine();
-        var firstLine = fileStream.ReadLine();
-        var fourLength = firstLine.length * 4;
-        fileStream.Skip(fileSize - fourLength);
-        while (!fileStream.AtEndOfStream) {
-            var lastBuffer = fileStream.ReadAll();
-        }
-        fileStream.close();
-    }
-
-    if (firstLine.indexOf(strStartDateTime) > 0) {
-        foundString.push(true); //first line found dated entry
-    }
-
-    var forLastLine = lastBuffer.split('\r\n');
-    for (var a = 0; a < forLastLine.length; a++) {
-        if (forLastLine[a].indexOf(strEndDateTime) > 0) {
-            foundString.push(true); //last few lines found dated entry
-        }
-    }
-    return foundString;
-}
-
 //('DD/MM/YYYY HH:mm:ss')
 //2017-12-27_120000_to_2017-12-27_115959
 function dateReformatted(dateStringer) {
@@ -1399,7 +1297,7 @@ function collectResource(objStartFolder, collectInfo, scriptFolder) { //for chec
     vbsFile.writeline('dim objArgs, showHideLauncher, logFileFolder, objFSO, nameSplitter, fileStream' + '\r\n' + 'set objArgs = WScript.Arguments' + '\r\n' + 'set objFSO = CreateObject("Scripting.FileSystemObject")' + '\r\n' + 'uptimeDays = 0' + '\r\n' + 'uptimeHrs = 0 ' + '\r\n' + 'uptimeMin = 0 ' + '\r\n' + 'thisComputer = "localhost"' + '\r\n' + 'if objArgs.Count = 1 then' + '\r\n' + '  logFileFolder = objArgs(0) ' + '\r\n' + '  nameSplitter = split(logFileFolder,":\\")' + '\r\n' + 'Set fileStream = objFSO.OpentextFile(logFileFolder, 2, True, -2)' + '\r\n' + 'fileStream.writeline "CPU Free: " & TotalCPU() & "%"' + '\r\n' + 'fileStream.writeline "Mem Available: " & round(availMemory()/1024/1024) & "MB"' + '\r\n' + 'fileStream.writeline "Disk Free: " & diskSpace(UCase(nameSplitter(0)))' + '\r\n' + 'fileStream.writeline "Disk Queue: " & diskSpeed(UCase(nameSplitter(0)))' + '\r\n' + 'fileStream.writeline "PC uptime: " & fnUptime(thisComputer)' + '\r\n' + 'fileStream.Close' + '\r\n' + 'end if' + '\r\n' + 'set objArgs = nothing' + '\r\n' + 'set showHideLauncher = nothing' + '\r\n' + 'set logFileFolder = nothing' + '\r\n' + 'set objFSO = nothing' + '\r\n' + 'set nameSplitter = nothing' + '\r\n' + 'Function fnUptime(strComputer) ' + '\r\n' + '    Set objWMIService = GetObject("winmgmts:\\\\" & strComputer & "\\root\\cimv2") ' + '\r\n' + '    Set colOperatingSystems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem") ' + '\r\n' + '    For Each objOS in colOperatingSystems ' + '\r\n' + '        dtmBootup = objOS.LastBootUpTime ' + '\r\n' + '        dtmLastBootupTime = WMIDateStringToDate(dtmBootup) ' + '\r\n' + '        dtmSystemUptime = DateDiff("n", dtmLastBootUpTime, Now)' + '\r\n' + '    Next      ' + '\r\n' + '    fnUptime = timeConversion(dtmSystemUptime)' + '\r\n' + 'End Function ' + '\r\n' + 'Function WMIDateStringToDate(dtmBootup) ' + '\r\n' + '    WMIDateStringToDate = CDate(Mid(dtmBootup, 5, 2) & "/" & _ ' + '\r\n' + '        Mid(dtmBootup, 7, 2) & "/" & Left(dtmBootup, 4) _ ' + '\r\n' + '            & " " & Mid (dtmBootup, 9, 2) & ":" & _ ' + '\r\n' + '                Mid(dtmBootup, 11, 2) & ":" & Mid(dtmBootup,13, 2)) ' + '\r\n' + 'End Function   ' + '\r\n' + 'Function timeConversion(dtmSystemUptime) ' + '\r\n' + '    uptimeMin = dtmSystemUptime ' + '\r\n' + '    if uptimeMin >= 60 then ' + '\r\n' + '        uptimeHrs = Int(uptimeMin / 60)' + '\r\n' + '        uptimeMin = (uptimeMin mod 60)' + '\r\n' + '    end if ' + '\r\n' + '    if uptimeHrs >= 24 then ' + '\r\n' + '        uptimeDays = Int(uptimeHrs / 24)' + '\r\n' + '        uptimeHrs = (uptimeHrs mod 24)' + '\r\n' + '    end if ' + '\r\n' + '    timeConversion = uptimeDays & " Days " & uptimeHrs & " Hours " & uptimeMin & " Minutes"' + '\r\n' + 'End Function ' + '\r\n' + '' + '\r\n' + '' + '\r\n' + 'Sub sleepingVB()' + '\r\n' + '	Set oShell = CreateObject("WScript.Shell")' + '\r\n' + '	cmd = "%COMSPEC% /c ping -n 1 127.0.0.1>nul"' + '\r\n' + '	oShell.Run cmd,0,1' + '\r\n' + '	Set oShell = Nothing' + '\r\n' + 'End Sub' + '\r\n' + '' + '\r\n' + 'Function TotalCPU()' + '\r\n' + '    Dim objService, objInstance1, objInstance2, N1, N2, D1, D2' + '\r\n' + '    Set objService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\root\\cimv2")' + '\r\n' + '    Set objInstance1 = objService.Get("Win32_PerfRawData_PerfOS_Processor.Name=' + "'_Total'" + '")' + '\r\n' + '    N1 = objInstance1.PercentProcessorTime' + '\r\n' + '    D1 = objInstance1.TimeStamp_Sys100NS' + '\r\n' + '    call sleepingVB()' + '\r\n' + '    Set objInstance2 = objService.Get("Win32_PerfRawData_PerfOS_Processor.Name=' + "'_Total'" + '")' + '\r\n' + '    N2 = objInstance2.PercentProcessorTime' + '\r\n' + '    D2 = objInstance2.TimeStamp_Sys100NS' + '\r\n' + '    Nd = (N2 - N1)' + '\r\n' + '    Dd = (D2-D1)' + '\r\n' + '    TotalCPU = Round(((Nd/Dd)  *100), 2)' + '\r\n' + 'End Function' + '\r\n' + 'Function diskSpace(driveLetter)' + '\r\n' + '    Dim objWMIService, objItem, colItems, strComputer, myArray()' + '\r\n' + '    Redim myArray(0)' + '\r\n' + '    On Error Resume Next' + '\r\n' + '    strComputer = "."' + '\r\n' + '    Set objWMIService = GetObject("winmgmts:\\\\" & strComputer & "\\root\\cimv2")' + '\r\n' + '    Set colItems = objWMIService.ExecQuery("Select * from Win32_LogicalDisk")' + '\r\n' + '    For Each objItem in colItems' + '\r\n' + '        If objItem.Name = driveLetter & ":" Then' + '\r\n' + '            myArray (Ubound(myArray)) = objItem.Name' + '\r\n' + '            Redim Preserve myArray (Ubound(myArray)+ 1)' + '\r\n' + '            myArray (Ubound(myArray)) = Int(objItem.FreeSpace /1073741824) & "GB"' + '\r\n' + '            Redim Preserve myArray (Ubound(myArray)+ 1)' + '\r\n' + '        End If' + '\r\n' + '    Next' + '\r\n' + '    diskSpace = join(myArray,"")' + '\r\n' + 'End Function' + '\r\n' + 'Function diskSpeed(driveLetter)' + '\r\n' + '    Dim objWMIService, objCimv2, strComputer, myArray(), objRefresher, colDiskDrives, objDiskDrive, objDiskQueue' + '\r\n' + '    Redim myArray(0)' + '\r\n' + '    strComputer = "."' + '\r\n' + '    set objRefresher = CreateObject("WbemScripting.SWbemRefresher")' + '\r\n' + '    Set objCimv2 = GetObject("winmgmts:root\\cimv2")' + '\r\n' + '    Set objDiskQueue = objRefresher.AddEnum (objCimv2,"Win32_PerfFormattedData_PerfDisk_LogicalDisk").ObjectSet' + '\r\n' + '    objRefresher.Refresh' + '\r\n' + '    For each intDiskQueue in objDiskQueue' + '\r\n' + '        If intDiskQueue.Name = driveLetter & ":" Then' + '\r\n' + '            If intDiskQueue.CurrentDiskQueueLength > 2 Then' + '\r\n' + '                myArray (Ubound(myArray)) = "BUSY"' + '\r\n' + '            Else' + '\r\n' + '                myArray (Ubound(myArray)) = "NORMAL"' + '\r\n' + '            End If' + '\r\n' + '        End If' + '\r\n' + '    Next' + '\r\n' + '    diskSpeed = join(myArray,"")' + '\r\n' + 'End Function' + '\r\n' + '' + '\r\n' + 'Function availMemory()' + '\r\n' + '	Dim oWMI, Instance' + '\r\n' + '	Set oWMI = GetObject("WINMGMTS:\\\\.\\ROOT\\cimv2")' + '\r\n' + '    Set Instance = oWMI.Get("Win32_PerfFormattedData_PerfOS_Memory=@")' + '\r\n' + '    availMemory = Instance.AvailableBytes' + '\r\n' + 'End Function');
     vbsFile.close();
 
-    var strCommand = 'cmd /c cscript //nologo "' + scriptFolder + 'collectSQLData.vbs" "' + objStartFolder + 'resource"';
+    var strCommand = comspec + ' /c cscript //nologo "' + scriptFolder + 'collectSQLData.vbs" "' + objStartFolder + 'resource"';
     //cscript .\src\collectSQLData.vbs a "C:\ViewToggle\02-sqlPlusSelect\01 toCSCRIPT" > resource
     objShell.Run(strCommand, shellRunOption.hideWindow(), true);
 
@@ -1460,7 +1358,7 @@ function deleteOlderZip(folderStore, deleteDays) {
 
                 
 
-                if (fileStartDateTimeActual.diff(moment(), 'days') < daysBefore ) { //deleting zip & CSV files older than 11 days
+                if (fileStartDateTimeActual.diff(moment(), 'days') < daysBefore ) { //deleting zip & CSV files older than 18 days
                     colFiles.item().Delete();
                 }
             }
@@ -1601,7 +1499,7 @@ function deletePrematureFiles(objStartFolder) {
 	
 	if (csvFiles.length > 0) {
 		for (var k = 0; k < csvFiles.length; k++) {
-			if (txtFiles.length > 0) {
+			if (txtFiles.length > 0) { //never run becos of line 3172 commented off
 				for (var j = 0; j < txtFiles.length; j++) {
 					if ((objFSO.FileExists(csvFiles[k]) && objFSO.FileExists(txtFiles[j])) && (objFSO.GetBaseName(csvFiles[k]) == objFSO.GetBaseName(txtFiles[j]))){
 						var actualInputFile = txtFiles[j];
@@ -1634,7 +1532,7 @@ function deletePrematureFiles(objStartFolder) {
 		}	
 	}
 	
-	if (txtFiles.length > 0) {
+	if (txtFiles.length > 0) { //never run becos of line 3172 commented off
 		for (var j = 0; j < txtFiles.length; j++) {
 			if  ((typeof txtFiles[j] != 'undefined') && (typeof txtFiles[j] != null) && objFSO.FileExists(txtFiles[j])) {
 				var actualInputFile = txtFiles[j];
@@ -1838,31 +1736,31 @@ function readSQLRaw (folderStore, actualInputFile, actualoutputFile) {
 				}
 				checkFileSize(folderStore, objStartFolder, objFSO.GetBaseName(actualoutputFile), 'CSV');
 
-				/*
+				
 				toWriteLog = '===================================\r\n';
-				toWriteLog += js_yyyymmdd_hhmmss() + ' = Zipping up and to delete file ' + objFSO.GetBaseName(actualoutputFile) + '.CSV' + '\r\n';
-				toWriteLog += js_yyyymmdd_hhmmss() + ' = If works, file will zip up as ' + objFSO.GetBaseName(actualoutputFile) + '.zip' + '\r\n';
+				toWriteLog += js_yyyymmdd_hhmmss() + ' = At readSQLRaw : Zipping up and to delete file ' + objFSO.GetBaseName(actualoutputFile) + '.CSV' + '\r\n';
+				toWriteLog += js_yyyymmdd_hhmmss() + ' = At readSQLRaw : If works, file will zip up as ' + objFSO.GetBaseName(actualoutputFile) + '.zip' + '\r\n';
 				toWriteLog += '===================================\r\n';
 				createLogFile(objStartFolder, toWriteLog);
 				if (showEcho == 'showEcho') {
 					WScript.echo(toWriteLog);
 				}
 				var zipSuccessful = false
-				var zipSuccessful = f_CreateZip(folderStore, objFSO.GetBaseName(actualoutputFile));
-				WScript.sleep(10000);
+				//zipSuccessful = f_CreateZip(folderStore, objFSO.GetBaseName(actualoutputFile));
+				zipSuccessful = oracleZipper (folderStore, objFSO.GetBaseName(actualoutputFile), zipperExe);
 
 				toWriteLog = '===================================\r\n';
 				if (zipSuccessful) {
-					toWriteLog += js_yyyymmdd_hhmmss() + ' = Zip successful.' + '\r\n';
+					toWriteLog += js_yyyymmdd_hhmmss() + ' = At readSQLRaw : Zip successful.' + '\r\n';
 				} else if (!zipSuccessful) {
-					toWriteLog += js_yyyymmdd_hhmmss() + ' = Zip failed. Zip file deleted.' + '\r\n';
+					toWriteLog += js_yyyymmdd_hhmmss() + ' = At readSQLRaw : Zip failed. Zip file deleted.' + '\r\n';
 				}
 				toWriteLog += '===================================\r\n';
 				createLogFile(objStartFolder, toWriteLog);
 				if (showEcho == 'showEcho') {
 					WScript.echo(toWriteLog);
 				}
-				*/
+				
 				
 			}
 		} else {
