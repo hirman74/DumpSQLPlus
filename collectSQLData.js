@@ -415,7 +415,7 @@ function spoolFileMaker(stringElements, startDateTime, endDateTime, tempFolder, 
     sqlFile.write(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss'));
     sqlFile.writeline("','DD/MM/YYYY HH24:MI:SS');");
 
-    sqlFile.write("SELECT SOURCE_TABLE," + "\r\n" + "PKEY," + "\r\n" + "SUBSYSTEM_KEY," + "\r\n" + "PHYSICAL_SUBSYSTEM_KEY," + "\r\n" + "LOCATION_KEY," + "\r\n" + "SEVERITY_KEY," + "\r\n" + "EVENT_TYPE_KEY," + "\r\n" + "ALARM_ID," + "\r\n" + "ALARM_TYPE_KEY," + "\r\n" + "MMS_STATE," + "\r\n" + "DSS_STATE," + "\r\n" + "AVL_STATE," + "\r\n" + "OPERATOR_KEY," + "\r\n" + "OPERATOR_NAME," + "\r\n" + "ALARM_COMMENT," + "\r\n" + "EVENT_LEVEL," + "\r\n" + "ALARM_ACK," + "\r\n" + "ALARM_STATUS," + "\r\n" + "SESSION_KEY," + "\r\n" + "SESSION_LOCATION," + "\r\n" + "PROFILE_ID," + "\r\n" + "ACTION_ID," + "\r\n" + "OPERATION_MODE," + "\r\n" + "ENTITY_KEY," + "\r\n" + "AVLALARMHEADID," + "\r\n" + "SYSTEM_KEY," + "\r\n" + "EVENT_ID," + "\r\n" + "ASSET_NAME," + "\r\n" + "SEVERITY_NAME," + "\r\n" + "EVENT_TYPE_NAME," + "\r\n" + "VALUE," + "\r\n" + "to_char(CREATEDATETIME,'DD/MM/YYYY HH12:MI:SS AM')," + "\r\n" + "CREATETIME," + "\r\n" + "DESCRIPTION FROM EV_COMBINED WHERE CREATETIME BETWEEN TO_DATE('");
+    sqlFile.write("SELECT * FROM TABLE ");
     sqlFile.write(moment(startDateTime).format('DD/MM/YYYY HH:mm:ss'));
     sqlFile.write("','DD/MM/YYYY HH24:MI:SS') AND TO_DATE('");
     sqlFile.write(moment(endDateTime).format('DD/MM/YYYY HH:mm:ss'));
@@ -1684,7 +1684,7 @@ function readSQLRaw (folderStore, actualInputFile, actualoutputFile) {
 				WScript.echo(toWriteLog);
 			}
 
-			var writeHeader = 'SOURCE_TABLE, PKEY, SUBSYSTEM_KEY, PHYSICAL_SUBSYSTEM_KEY, LOCATION_KEY, SEVERITY_KEY, EVENT_TYPE_KEY, ALARM_ID, ALARM_TYPE_KEY, MMS_STATE, DSS_STATE, AVL_STATE, OPERATOR_KEY, OPERATOR_NAME, ALARM_COMMENT, EVENT_LEVEL, ALARM_ACK, ALARM_STATUS, SESSION_KEY, SESSION_LOCATION, PROFILE_ID, ACTION_ID, OPERATION_MODE, ENTITY_KEY, AVLALARMHEADID, SYSTEM_KEY, EVENT_ID, ASSET_NAME, SEVERITY_NAME, EVENT_TYPE_NAME, VALUE, CREATEDATETIME, CREATETIME, DESCRIPTION';
+			var writeHeader = 'GOGO POWER RANGER';
 			var writeSQLResult = objFSO.OpentextFile(actualoutputFile, ForWriting, CreateIt, systemDefaultMode);
 			writeSQLResult.write(writeHeader);
 			var readSQLResult = objFSO.OpentextFile(actualInputFile, ForReading, dontWantCreateIt, systemDefaultMode);
